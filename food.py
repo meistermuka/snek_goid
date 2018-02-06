@@ -1,6 +1,9 @@
+import math
+
+from operator import itemgetter
 from random import randint
 
-from constants import MAX_Y, MAX_X, WIDTH, HEIGHT, GOID_SIZE
+from constants import MAX_Y, MAX_X, GOID_SIZE, SEPARATION_FACTOR, NUM_NEIGHBOURS, COHERENCE_FACTOR
 
 
 class Food(object):
@@ -27,10 +30,57 @@ class Goid(object):
         self.vy = vy
         self.color = color
 
-    def nearest_neighbour(self, goid_list):
-        neighbours = []
+    def _distance(self, goid_a, goid_n):
+        x = goid_a[0] - goid_n[0]
+        y = goid_a[1] - goid_n[1]
+        return math.sqrt(math.pow(x, 2) + math.pow(y, 2))
+
+    def nearest_neighbours(self, goid_list):
+        new_goids = []
+
         for goid in goid_list:
-            neighbours.append(goid)
+            new_goids.append((self._distance((self.x, self.y), (goid.x, goid.y)), goid))
+
+        new_goids.sort(key=itemgetter(0))
+        return [goid[1] for goid in new_goids]
+
+    def separate(self, neighbours):
+        x, y = 0, 0
+        for neighbour in neighbours[:NUM_NEIGHBOURS]:
+            if self._distance((self.x, self.y), neighbour) < SEPARATION_FACTOR:
+                x += self.x - neighbour.x
+                y += self.y - neighbour.y
+
+        self.vx = x
+        self.vy = y
+        self.x += x
+        self.y += y
+
+    def align(self, neighbours):
+        x, y = 0, 0
+        for neighbour in neighbours[:NUM_NEIGHBOURS]:
+            x += neighbour.vx
+            y += neighbour.vy
+
+        dx, dy = x / NUM_NEIGHBOURS, y / NUM_NEIGHBOURS
+        self.vx += dx
+        self.vy += dy
+        self.x += dx
+        self.y += dy
+
+    def cohere(self, neighbours):
+        x, y = 0, 0
+        for neighbour in neighbours[:NUM_NEIGHBOURS]:
+            x += neighbour.x
+            y += neighbour.y
+
+        dx, dy = ((x / NUM_NEIGHBOURS) - self.x)/COHERENCE_FACTOR, ((y / NUM_NEIGHBOURS) - self.y)/COHERENCE_FACTOR
+        self.vx += dx
+        self.vy += dy
+        self.x += dx
+        self.y += dy
+
+
 
 
 

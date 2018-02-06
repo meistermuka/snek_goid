@@ -26,8 +26,8 @@ if __name__ == "__main__":
     while True:
         window.clear()
         window.border(0)
-        snek.render()
-        food.render()
+        # snek.render()
+        """food.render()
 
         window.addstr(0, 5, snek.score)
         event = window.getch()
@@ -48,6 +48,6 @@ if __name__ == "__main__":
 
         snek.update()
         if snek.collided:
-            break
+            break"""
 
     curses.endwin()
